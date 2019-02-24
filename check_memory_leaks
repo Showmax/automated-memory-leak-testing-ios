@@ -1,0 +1,26 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+APP_NAME="Leakmax"
+APP_UI_TEST_SCHEME="LeakmaxUITests"
+APP_RUNNER_NAME="$APP_UI_TEST_SCHEME-Runner"
+APP_DIR="$SCRIPT_DIR/app"
+APP_WORKSPACE="$APP_DIR/Leakmax.xcworkspace"
+APP_UI_TEST_PRINCIPAL_CLASS="PrincipalClass"
+APP_UI_TEST_PRINCIPAL_CLASS_FILE="$APP_DIR/LeakmaxUITests/Support/$APP_UI_TEST_PRINCIPAL_CLASS.swift"
+APP_UI_TEST_NAMES=( \
+ 	"$APP_UI_TEST_SCHEME/NumberGeneratorUITests" \
+)
+
+bash "$SCRIPT_DIR/memory-leak-tester/start"    \
+        "$APP_NAME" \
+        "$APP_RUNNER_NAME" \
+        "$APP_WORKSPACE" \
+        "$APP_UI_TEST_SCHEME" \
+        ".memory-leak-tester-reports" \
+        ".memory-leak-tester-build" \
+        "iPhone X" \
+        "$APP_UI_TEST_PRINCIPAL_CLASS_FILE" \
+        "$APP_UI_TEST_PRINCIPAL_CLASS" \
+        "$APP_UI_TEST_NAMES"
