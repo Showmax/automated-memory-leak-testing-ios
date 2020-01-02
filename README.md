@@ -1,6 +1,6 @@
 # Automated memory leak testing
 
-[https://tech.showmax.com/2019/02/automated-mem-leak-testing-ios/](Blog post with details explained)
+[Blog post with details explained](https://tech.showmax.com/2019/02/automated-mem-leak-testing-ios/)
 
 ## Requirements
 
