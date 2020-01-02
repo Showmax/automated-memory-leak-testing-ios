@@ -25,11 +25,11 @@ KEEP_RAW_REPORT_DATA="$8"
 
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# ait settings
+# settings
 
-instrumentsTemplateName="leaks_immediate_recording"
-instrumentsTraceTemplate="$scriptDir/InstrumentsTraceTemplates/$instrumentsTemplateName"
-# instrumentsTraceTemplate="Leaks"
+instrumentsTemplateName="LeaksWithIgnoredAppleSymbols" # Should ignore types like "Malloc", but for some reason does not, need to debug.
+#instrumentsTraceTemplate="$scriptDir/InstrumentsTraceTemplates/$instrumentsTemplateName"
+instrumentsTraceTemplate="Leaks" # Default Apple template for leaks.
 traceParseUtility="$scriptDir/TraceUtilityFork/bin/TraceUtility"
 
 testPIDTimeout=30

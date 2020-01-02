@@ -4,7 +4,7 @@
 
 ## Requirements
 
-- Xcode installed or symlinked exactly at `/Applications/Xcode.app`
+- Xcode 11 installed or symlinked exactly at `/Applications/Xcode.app`
 
 ## Example
 

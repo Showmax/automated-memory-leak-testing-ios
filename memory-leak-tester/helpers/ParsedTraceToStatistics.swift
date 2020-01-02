@@ -18,9 +18,15 @@ struct Leak {
     let allocationTimestamp: Int
     let count: Int
     let size: Int
-    let possibleAppName: String?
+    let bundleName: String?
 
-    var id: String { return description.isEmpty ? name : description }
+    var id: String { 
+        var text = name.isEmpty ? "unknown" : name
+        if let bundleName = bundleName, !bundleName.isEmpty {
+            text.append(" (\(bundleName))")
+        }
+        return text
+    }
 
     init?(dict: NSDictionary) {
         guard   let name = dict["name"] as? String,
@@ -43,18 +49,17 @@ struct Leak {
         self.count = count
         self.size = size
 
-        self.possibleAppName = description
+        self.bundleName = description
             .components(separatedBy: " ")
-            .filter { !$0.isEmpty && $0 != name && $0 != "Swift" }
+            .filter { !$0.isEmpty && $0 != name && !$0.contains("DVT_") && !$0.contains("0x") }
             .joined(separator: " ")
     }
 }
 
 struct Report {
-    let appName: String
     let createdAt: Date
     let leaks: [Leak]
-    init?(plist: Plist, retainOnlyAppNameLeaks: Bool) {
+    init?(plist: Plist) {
         let filenameComponents = plist.filename.components(separatedBy: "-")
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMddHHmmss"
@@ -63,12 +68,9 @@ struct Report {
                 let leaksRaw = plist.dict["com.apple.xray.instrument-type.homeleaks"] as? [NSDictionary]
         else { return nil }
 
-        let appName = filenameComponents[0]
-        self.appName = appName
         self.createdAt = createdAt
         self.leaks = leaksRaw.compactMap { leakRaw in
             let leak = Leak(dict: leakRaw)
-            if retainOnlyAppNameLeaks && leak?.possibleAppName != appName { return nil }
             return leak
         }
     }
@@ -151,7 +153,7 @@ guard let outputURL = fullPathFromCurrentDirectory(for: CommandLine.arguments[2]
 
 do {
     let plists = try loadPlists(from: directoryURL)
-    let reports = plists.compactMap { Report(plist: $0, retainOnlyAppNameLeaks: false) }
+    let reports = plists.compactMap { Report(plist: $0) }
     let stats = Statistics()
     reports.forEach { stats.analyze(report: $0) }
     stats.save(to: outputURL)
