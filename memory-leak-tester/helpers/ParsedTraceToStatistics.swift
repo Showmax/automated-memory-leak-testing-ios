@@ -119,21 +119,15 @@ func fullPathFromCurrentDirectory(for path: String) -> URL? {
     return URL(fileURLWithPath: path, relativeTo: currentDirectoryURL)
 }
 
-func loadPlists(from directoryURL: URL) -> [Plist] {
+func loadPlists(from directoryURL: URL) throws -> [Plist] {
     let fileManager = FileManager.default
-    do {
-        let plistsFiles = try fileManager.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
-        let plists = plistsFiles.compactMap { plistFile -> Plist? in
-            guard let dict = NSDictionary(contentsOf: plistFile) else { return nil }
-            return Plist(filename: plistFile.lastPathComponent, dict: dict)
-        }
-        let sortedPlists = plists.sorted(by: { $0.filename < $1.filename })
-        return sortedPlists
-    } catch {
-        print(error: "\(error)")
-        exit(1)
+    let plistsFiles = try fileManager.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
+    let plists = plistsFiles.compactMap { plistFile -> Plist? in
+        guard let dict = NSDictionary(contentsOf: plistFile) else { return nil }
+        return Plist(filename: plistFile.lastPathComponent, dict: dict)
     }
-    return []
+    let sortedPlists = plists.sorted(by: { $0.filename < $1.filename })
+    return sortedPlists
 }
 
 // Parse arguments ///////////////////////////////////////////////////////////////////////
@@ -155,10 +149,14 @@ guard let outputURL = fullPathFromCurrentDirectory(for: CommandLine.arguments[2]
 
 // Create statistics file ///////////////////////////////////////////////////////////////////////
 
-let plists = loadPlists(from: directoryURL)
-let reports = plists.compactMap { Report(plist: $0, retainOnlyAppNameLeaks: false) }
-
-let stats = Statistics()
-reports.forEach { stats.analyze(report: $0) }
-stats.save(to: outputURL)
-stats.printInfo()
+do {
+    let plists = try loadPlists(from: directoryURL)
+    let reports = plists.compactMap { Report(plist: $0, retainOnlyAppNameLeaks: false) }
+    let stats = Statistics()
+    reports.forEach { stats.analyze(report: $0) }
+    stats.save(to: outputURL)
+    stats.printInfo()
+} catch {
+    print(error: "\(error)")
+    exit(1)
+}
