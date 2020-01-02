@@ -12,6 +12,13 @@ APP_UI_TEST_PRINCIPAL_CLASS_FILE="$APP_DIR/LeakmaxUITests/Support/$APP_UI_TEST_P
 APP_UI_TEST_NAMES=( \
  	"$APP_UI_TEST_SCHEME/NumberGeneratorUITests" \
 )
+SIMULATOR_NAME="" # Here fill your simulator name
+
+if [ -z "$SIMULATOR_NAME" ]
+then
+      echo 'Error: Please, fill name of simulator in `SIMULATOR_NAME` variable inside `check_memory_leaks` script.'
+      exit 1
+fi
 
 bash "$SCRIPT_DIR/memory-leak-tester/start"    \
         "$APP_NAME" \
@@ -20,7 +27,7 @@ bash "$SCRIPT_DIR/memory-leak-tester/start"    \
         "$APP_UI_TEST_SCHEME" \
         ".memory-leak-tester-reports" \
         ".memory-leak-tester-build" \
-        "iPhone X" \
+        "$SIMULATOR_NAME" \
         "$APP_UI_TEST_PRINCIPAL_CLASS_FILE" \
         "$APP_UI_TEST_PRINCIPAL_CLASS" \
         "$APP_UI_TEST_NAMES"
